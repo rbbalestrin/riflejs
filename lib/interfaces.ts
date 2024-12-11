@@ -1,3 +1,5 @@
+import { Router } from './router';
+
 export interface RifleOptions {
   log?: boolean;
   prefetch?: 'visible' | 'hover';
@@ -10,6 +12,8 @@ export interface RouteChangeData {
   prev?: string;
   scrollId?: string;
 }
+
+export type RifleWindow = Window & typeof globalThis & { rifle: Router };
 
 export type FetchProgressEvent = {
   progress: number;
