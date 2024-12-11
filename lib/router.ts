@@ -20,7 +20,7 @@ export class Router {
       window.addEventListener('popstate', (e) => this.onPop(e));
       this.prefetch();
     } else {
-      console.warn('Rifle routes not supported in this broser or environment');
+      console.warn('Rifle routes not supported in this browser or environment');
       this.enabled = false;
     }
   }
