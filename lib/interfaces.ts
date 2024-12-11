@@ -1,6 +1,6 @@
 export interface RifleOptions {
   log?: boolean;
-  prefetch?: 'visibl' | 'hover';
+  prefetch?: 'visible' | 'hover';
   pageTransitions?: boolean;
 }
 
