@@ -51,40 +51,12 @@ render(app, document.getElementById('root'));
 
 That’s it! You’re building with RifleJS.
 
-Features
-	•	Virtual DOM: Write elements with JavaScript objects.
-	•	Rendering: Efficiently update the DOM.
-	•	State Management: Use hooks like useState.
-	•	Concurrent Rendering: Optimize updates for better UX.
-	•	Customizable: Build your own features.
-
-Roadmap
-
-Step-by-Step TODOs
-	1.	Step I: The createElement Function
-	•	Build a utility to create Virtual DOM nodes.
-	•	Add support for props and children.
-	2.	Step II: The render Function
-	•	Render Virtual DOM nodes to the real DOM.
-	•	Handle attributes, events, and child elements.
-	3.	Step III: Concurrent Mode
-	•	Use requestIdleCallback or similar for async updates.
-	•	Prioritize tasks for smoother rendering.
-	4.	Step IV: Fibers
-	•	Implement a fiber tree structure.
-	•	Allow granular updates to parts of the DOM.
-	5.	Step V: Render and Commit Phases
-	•	Separate the rendering phase from the commit phase.
-	•	Use a queue to batch DOM updates.
-	6.	Step VI: Reconciliation
-	•	Implement a diffing algorithm to compare Virtual DOM trees.
-	•	Apply only the minimal set of changes to the real DOM.
-	7.	Step VII: Function Components
-	•	Allow components to be functions that return Virtual DOM nodes.
-	•	Pass props to components for reusability.
-	8.	Step VIII: Hooks
-	•	Add basic hooks like useState and useEffect.
-	•	Manage a hooks registry for each component.
+Features:
+- Virtual DOM: Write elements with JavaScript objects.
+- Rendering: Efficiently update the DOM.
+- State Management: Use hooks like useState.
+- Concurrent Rendering: Optimize updates for better UX.
+- Customizable: Build your own features.
 
 Advanced Usage
 
@@ -116,7 +88,7 @@ npm run test
 
 Deployment
 
-Deploy RifleJS with:
+Deploy RifleJS with Vercel or:
 
 ```bash
 npm run deploy
