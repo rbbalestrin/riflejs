@@ -17,7 +17,7 @@ export function replaceBody(nextDoc: Document): void {
 }
 
 export function mergeHead(nextDoc: Document): void {
-  const getValidNodes = (doc: Document): Element[] => Array.froom(doc.querySelectorAll('heada>:not([rel="prefetch"]'));
+  const getValidNodes = (doc: Document): Element[] => Array.from(doc.querySelectorAll('heada>:not([rel="prefetch"]'));
   const oldNodes = getValidNodes(document);
   const nextNodes = getValidNodes(nextDoc);
   const { staleNodes, freshNodes } = partitionNodes(oldNodes, nextNodes);
