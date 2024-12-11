@@ -1,130 +1,189 @@
-# Riflejs 🔫
+# RifleJS 🔫
 Status: Meme (WIP)
 
-The most game changin platform for building blazingly fast highly interactive experiences on the web (or not)
+The most game-changing library for building your own React-like framework with minimal effort.
 
 ## Why?
 
-**Problem:** Static sites feel slow and cannot easily share state between pages. This makes it difficult to create a pleasant user experience (UX) with JavaScript libraries because each new page needs to reboot your JS from scratch.
+**Problem:** Frontend frameworks like React are powerful but often come with a lot of complexity and size. RifleJS aims to give developers a bare-bones, React-like experience for learning, experimenting, or building small interactive web apps.
 
-Rather than requiring a frontend framework to take control of the entire DOM, the goal is to make route changes on static sites feel faster, like a SPA.
+Instead of relying on full-fledged frameworks, RifleJS lets you build a "React from scratch," learning about Virtual DOM, fibers, and reconciliation while keeping things lightweight.
 
 ## How?
 
-1. It tells the browser to prefetch visible links in the current page with `IntersectionObserver`.
-2. Intercepts click and popstate events, then updates the HTML5 history on route changes.
-3. Uses `fetch` to get the next page, swaps the `<body>` out, merges the `<head>`, but does not re-execute head scripts (unless asked to).
+RifleJS follows these principles:
 
-This means you can have long-lived JavaScript behaviors between navigations. It works especially well with native web components.
+1. Implements a `createElement` function for creating Virtual DOM nodes.
+2. Renders the Virtual DOM into the real DOM with a `render` function.
+3. Adds stateful components using `useState` and eventually introduces hooks.
+4. Gradually builds features like fibers, reconciliation, and concurrent rendering for performance.
+
+The framework is modular and extensible, with a focus on simplicity and learning.
 
 ## QuickStart
 
+Clone the repo and install dependencies:
+
+```bash
+git clone https://github.com/your-username/riflejs
+cd riflejs
+npm install
 ```
-npm i rifle-router
-```
+
+Start hacking:
 
 ```js
-import rifle from 'rifle-router';
-const router = rifle();
+import { createElement, render, useState } from 'riflejs';
+
+function Counter() {
+  const [count, setCount] = useState(0);
+
+  return createElement(
+    'button',
+    { onClick: () => setCount(count + 1) },
+    `You clicked ${count} times`
+  );
+}
+
+const app = createElement('div', null, createElement(Counter));
+render(app, document.getElementById('root'));
 ```
 
-That's it. Your site now feels blazingly fast.
+That’s it! You’re building with RifleJS.
 
-## Advanced Usage
+Features
+	•	Virtual DOM: Write elements with JavaScript objects.
+	•	Rendering: Efficiently update the DOM.
+	•	State Management: Use hooks like useState.
+	•	Concurrent Rendering: Optimize updates for better UX.
+	•	Customizable: Build your own features.
 
-```js
-// with opts
-const router = rifle({ prefetch: 'visible', log: false, pageTransitions: false });
+Roadmap
 
-// Navigate manually
-router.go('/somewhere');
-router.back();
-router.forward();
+Step-by-Step TODOs
+	1.	Step I: The createElement Function
+	•	Build a utility to create Virtual DOM nodes.
+	•	Add support for props and children.
+	2.	Step II: The render Function
+	•	Render Virtual DOM nodes to the real DOM.
+	•	Handle attributes, events, and child elements.
+	3.	Step III: Concurrent Mode
+	•	Use requestIdleCallback or similar for async updates.
+	•	Prioritize tasks for smoother rendering.
+	4.	Step IV: Fibers
+	•	Implement a fiber tree structure.
+	•	Allow granular updates to parts of the DOM.
+	5.	Step V: Render and Commit Phases
+	•	Separate the rendering phase from the commit phase.
+	•	Use a queue to batch DOM updates.
+	6.	Step VI: Reconciliation
+	•	Implement a diffing algorithm to compare Virtual DOM trees.
+	•	Apply only the minimal set of changes to the real DOM.
+	7.	Step VII: Function Components
+	•	Allow components to be functions that return Virtual DOM nodes.
+	•	Pass props to components for reusability.
+	8.	Step VIII: Hooks
+	•	Add basic hooks like useState and useEffect.
+	•	Manage a hooks registry for each component.
 
-// Listen to events
-window.addEventListener('rifle:router:fetch', showLoader);
-window.addEventListener('rifle:router:fetch-progress', updateProgressBar);
-window.addEventListener('rifle:router:end', hideLoader);
+Advanced Usage
 
-// Disable it
-router.enabled = false;
-```
+Customize RifleJS by adding new hooks, state management, or rendering optimizations. The library is designed to be hackable for educational purposes.
 
-Opt-out of specific links for full page load.
+Contributing
 
-```html
-<a href="/somewhere" data-cold></a>
-```
+Want to improve RifleJS? Contributions are welcome!
 
-Scripts in `<body>` will run on every page change, but you can force scripts in the `<head>` to run:
+Development
 
-```html
-<script src="..." data-reload></script>
-```
+Run the project in development mode:
 
-The fetch-progress event is a custom event, so usage will look something like this:
-```js
-window.addEventListener('rifle:router:fetch-progress', ({ detail }) => {
-	const progressBar = document.getElementById('progress-bar');
-	// progress & length will be 0 if there is no Content-Length header
-	const bytesReceived = detail.received; // number
-	const length = detail.length; // number
-	progressBar.style.width = detail.progress + '%';
-});
-```
-
-### Prefetching
-
-Prefecthing is disabled by default.
-
-- `visible`: prefetch visible links on the page with IntersectionObserver
-- `hover`: prefetch links on hover
-
-```js
-const router = rifle({ prefetch: 'visible' });
-```
-
-### Misc
-
-**Supported in all browsers?** Yes. It will fallback to standard navigation if `window.history` does not exist.
-
-**Does it work with Next.js?** No, any framework that fully hydrates to an SPA does not need this - you already have a client-side router.
-
-**Does it work with Astro?** I think so. It can share state between routes, but partially hydrated components may flash between routes.
-
-**Other things to know:**
-
-- `<head>` scripts run only on the first page load. `<body>` scripts will still run on every page change (by design).
-- It's a good idea to show a global loading bar in case of a slow page load.
-- This library is inspired by [Turbo](https://github.com/hotwired/turbo) Drive.
-- This project is experimental.
-
-### Contributing
-
-Build it:
-
-```
+```bash
 npm run dev
 ```
 
-Serve the example:
+Serve the examples:
 
-```
+```bash
 npm run serve
 ```
 
-Make sure all playwright tests pass before submitting new features.
+Test your changes:
 
-```
+```bash
 npm run test
 ```
 
-### Deploying
+Deployment
 
-You can deploy rifle to [Vercel](http://vercel.com/) as follows:
+Deploy RifleJS with:
 
-```
+```bash
 npm run deploy
 ```
 
-This uses the [Build Output API](https://vercel.com/docs/build-output-api/v3) and the [Vercel CLI](https://vercel.com/cli) to deploy the `/example` folder.
+This uses a simple static server setup for demonstration purposes.
+
+RifleJS is inspired by modern frontend frameworks but keeps things lightweight and fun. Build, learn, and experiment!
+
+---
+
+# RifleJS TODO
+
+## Core Development Plan
+
+### Step I: The `createElement` Function
+- [ ] Create a utility to construct Virtual DOM nodes.
+- [ ] Support props, events, and child nodes.
+- [ ] Write tests for the `createElement` function.
+
+### Step II: The `render` Function
+- [ ] Create a function to map Virtual DOM to real DOM.
+- [ ] Handle text nodes, attributes, and event listeners.
+- [ ] Write tests for rendering logic.
+
+### Step III: Concurrent Mode
+- [ ] Use `requestIdleCallback` for asynchronous updates.
+- [ ] Build a task scheduler to prioritize rendering.
+
+### Step IV: Fibers
+- [ ] Create a fiber tree structure to represent nodes.
+- [ ] Allow interruptible updates to the DOM.
+
+### Step V: Render and Commit Phases
+- [ ] Separate the render phase (Virtual DOM processing) from the commit phase (real DOM updates).
+- [ ] Implement a queue to batch DOM changes.
+
+### Step VI: Reconciliation
+- [ ] Build a diffing algorithm to compare Virtual DOM trees.
+- [ ] Apply only the minimal set of updates to the DOM.
+
+### Step VII: Function Components
+- [ ] Add support for functional components.
+- [ ] Pass `props` to components for dynamic rendering.
+
+### Step VIII: Hooks
+- [ ] Implement `useState` for local state management.
+- [ ] Add `useEffect` for side effects.
+- [ ] Build a registry to track hooks.
+
+---
+
+## Project Tasks
+
+### Examples
+- [ ] Build a basic counter app.
+- [ ] Create a to-do list app with state management.
+
+### Documentation
+- [ ] Write detailed examples in the README.
+- [ ] Add comments to the codebase for clarity.
+
+### Testing
+- [ ] Set up a testing framework (e.g., Jest).
+- [ ] Write unit tests for each module.
+- [ ] Add integration tests for full workflows.
+
+### Optimization
+- [ ] Profile rendering performance.
+- [ ] Optimize reconciliation for large trees.
