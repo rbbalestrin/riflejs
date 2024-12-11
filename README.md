@@ -5,96 +5,22 @@ The most game-changing library for building your own React-like framework with m
 
 ## Why?
 
-**Problem:** Frontend frameworks like React are powerful but often come with a lot of complexity and size. RifleJS aims to give developers a bare-bones, React-like experience for learning, experimenting, or building small interactive web apps.
+**Problem:** Frontend frameworks like React are powerful but complex, while RifleJS simplifies the experience for building lightweight interactive apps, addressing the challenge of static sites that struggle with slow performance and state sharing between pages.
 
-Instead of relying on full-fledged frameworks, RifleJS lets you build a "React from scratch," learning about Virtual DOM, fibers, and reconciliation while keeping things lightweight.
+RifleJS offers a lightweight alternative to full-fledged frameworks, enabling you to build a “React from scratch” while exploring concepts like Virtual DOM, fibers, and reconciliation, with the goal of making route changes on static sites feel as seamless and fast as a SPA without requiring a framework to control the entire DOM.
 
 ## How?
 
-RifleJS follows these principles:
+RifleJS achieves its lightweight and fast approach by combining innovative techniques for navigation and Virtual DOM management. It prefetches visible links on the current page using IntersectionObserver, intercepts click and popstate events, and updates the HTML5 history seamlessly during route changes. When fetching the next page, it swaps the <body>, merges the <head> (without re-executing scripts unless specified), and ensures JavaScript behaviors persist across navigations—making it especially compatible with native web components.
 
-1. Implements a `createElement` function for creating Virtual DOM nodes.
-2. Renders the Virtual DOM into the real DOM with a `render` function.
-3. Adds stateful components using `useState` and eventually introduces hooks.
-4. Gradually builds features like fibers, reconciliation, and concurrent rendering for performance.
+On the Virtual DOM side, RifleJS follows a modular and extensible design. It starts with a createElement function for generating Virtual DOM nodes, renders them to the real DOM via a render function, and introduces stateful components with useState, gradually expanding to hooks. Over time, it adds advanced features like fibers, reconciliation, and concurrent rendering to enhance performance, all while maintaining simplicity and focusing on learning.
 
-The framework is modular and extensible, with a focus on simplicity and learning.
-
-## QuickStart
-
-Clone the repo and install dependencies:
-
-```bash
-git clone https://github.com/your-username/riflejs
-cd riflejs
-npm install
-```
-
-Start hacking:
-
-```js
-import { createElement, render, useState } from 'riflejs';
-
-function Counter() {
-  const [count, setCount] = useState(0);
-
-  return createElement(
-    'button',
-    { onClick: () => setCount(count + 1) },
-    `You clicked ${count} times`
-  );
-}
-
-const app = createElement('div', null, createElement(Counter));
-render(app, document.getElementById('root'));
-```
-
-That’s it! You’re building with RifleJS.
-
-Features:
+## Features:
 - Virtual DOM: Write elements with JavaScript objects.
 - Rendering: Efficiently update the DOM.
 - State Management: Use hooks like useState.
 - Concurrent Rendering: Optimize updates for better UX.
 - Customizable: Build your own features.
-
-Advanced Usage
-
-Customize RifleJS by adding new hooks, state management, or rendering optimizations. The library is designed to be hackable for educational purposes.
-
-Contributing
-
-Want to improve RifleJS? Contributions are welcome!
-
-Development
-
-Run the project in development mode:
-
-```bash
-npm run dev
-```
-
-Serve the examples:
-
-```bash
-npm run serve
-```
-
-Test your changes:
-
-```bash
-npm run test
-```
-
-Deployment
-
-Deploy RifleJS with Vercel or:
-
-```bash
-npm run deploy
-```
-
-This uses a simple static server setup for demonstration purposes.
 
 RifleJS is inspired by modern frontend frameworks but keeps things lightweight and fun. Build, learn, and experiment!
 
