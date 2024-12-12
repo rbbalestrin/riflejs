@@ -8,8 +8,21 @@ function createElement(type, props, ...children) {
   };
 }
 
-function render() {
-  //todo
+function render(element, container) {
+  const dom = element.type === 'TEXT_ELEMENT' ? document.createTextNode('') : document.createElement(element.type);
+
+  const isProperty = (key) => key !== 'children';
+  Object.keys(element.props)
+    .filter(isProperty)
+    .forEach((name) => {
+      dom[name] = element.props[name];
+    });
+
+  element.props.children.forEach((child) => {
+    render(child, dom);
+  });
+
+  container.appendChild(dom);
 }
 
 function createTextElement(text: string) {
@@ -23,6 +36,9 @@ function createTextElement(text: string) {
 }
 const Rifle = {
   createElement,
+  render,
 };
 
 const element = Rifle.createElement('div', { id: 'foo' }, 'Hello ', Rifle.createElement('b', null, 'world'), '!');
+const container = document.getElementById('root');
+Rifle.render(element, container);
