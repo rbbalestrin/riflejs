@@ -8,29 +8,29 @@ function createElement(type, props, ...children) {
   };
 }
 
-function render(element, container) {
-  const dom = element.type === 'TEXT_ELEMENT' ? document.createTextNode('') : document.createElement(element.type);
+function createDom(fiber) {
+  const dom = fiber.type === 'TEXT_ELEMENT' ? document.createTextNode('') : document.createElement(element.type);
 
   const isProperty = (key) => key !== 'children';
-  Object.keys(element.props)
+  Object.keys(fiber.props)
     .filter(isProperty)
     .forEach((name) => {
-      dom[name] = element.props[name];
+      dom[name] = fiber.props[name];
     });
 
   element.props.children.forEach((child) => {
     render(child, dom);
   });
 
-  container.appendChild(dom);
+  return dom;
 }
 
-function createTextElement(text: string) {
-  return {
-    type: 'TEXT_ELEMENT',
+function render(element, container) {
+  //todo
+  nextUnitOfWork = {
+    dom: container,
     props: {
-      nodeValue: text,
-      children: [],
+      children: [element],
     },
   };
 }
@@ -48,8 +48,44 @@ function workLoop(deadline) {
 
 requestIdleCallback(workLoop);
 
-function performUnitOfWork(nextUnitOfWork) {
-  // TODO
+function performUnitOfWork(fiber) {
+  if (!fiber.dom) {
+    fiber.dom = createDom(fiber);
+  }
+
+  const elements = fiber.props.children;
+
+  let index = 0;
+  let prevSibling = null;
+
+  while (index < elements.length) {
+    const element = elements[index];
+
+    const newFiber = {
+      type: element.type,
+      props: element.props,
+      dom: null,
+      parent: fiber,
+    };
+    if (index == 0) {
+      fiber.child = newFiber;
+    } else {
+      prevSibling.sibling = newFiber;
+    }
+
+    prevSibling = newFiber;
+    index++;
+  }
+}
+
+function createTextElement(text: string) {
+  return {
+    type: 'TEXT_ELEMENT',
+    props: {
+      nodeValue: text,
+      children: [],
+    },
+  };
 }
 
 const Rifle = {
