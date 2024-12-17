@@ -23,15 +23,3 @@ On the Virtual DOM side, RifleJS follows a modular and extensible design. It sta
 - Customizable: Build your own features.
 
 RifleJS is inspired by modern frontend frameworks but keeps things lightweight and fun. Build, learn, and experiment!
-
----
-
-## Project Tasks
-
-### Examples
-- [ ] Build a basic counter app.
-- [ ] Create a to-do list app with state management.
-
-### Documentation
-- [X] Write detailed examples in the README.
-- [X] Add comments to the codebase for clarity.
