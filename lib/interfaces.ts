@@ -20,3 +20,25 @@ export type FetchProgressEvent = {
   received: number;
   length: number;
 };
+
+export interface RifleElement {
+  type: string | 'TEXT_ELEMENT';
+  props: {
+    [key: string]: any;
+    children: RifleElement[];
+  };
+}
+
+export interface Fiber {
+  type: string | 'TEXT_ELEMENT';
+  props: {
+    [key: string]: any;
+    children: RifleElement[];
+  };
+  dom?: Node | null;
+  parent?: Fiber | null;
+  child?: Fiber | null;
+  sibling?: Fiber | null;
+  alternate?: Fiber | null;
+  effectTag?: 'PLACEMENT' | 'UPDATE' | 'DELETION';
+}

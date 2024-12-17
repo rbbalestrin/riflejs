@@ -26,47 +26,6 @@ RifleJS is inspired by modern frontend frameworks but keeps things lightweight a
 
 ---
 
-# RifleJS TODO
-
-## Core Development Plan
-
-### Step I: The `createElement` Function
-- [ ] Create a utility to construct Virtual DOM nodes.
-- [ ] Support props, events, and child nodes.
-- [ ] Write tests for the `createElement` function.
-
-### Step II: The `render` Function
-- [ ] Create a function to map Virtual DOM to real DOM.
-- [ ] Handle text nodes, attributes, and event listeners.
-- [ ] Write tests for rendering logic.
-
-### Step III: Concurrent Mode
-- [ ] Use `requestIdleCallback` for asynchronous updates.
-- [ ] Build a task scheduler to prioritize rendering.
-
-### Step IV: Fibers
-- [ ] Create a fiber tree structure to represent nodes.
-- [ ] Allow interruptible updates to the DOM.
-
-### Step V: Render and Commit Phases
-- [ ] Separate the render phase (Virtual DOM processing) from the commit phase (real DOM updates).
-- [ ] Implement a queue to batch DOM changes.
-
-### Step VI: Reconciliation
-- [ ] Build a diffing algorithm to compare Virtual DOM trees.
-- [ ] Apply only the minimal set of updates to the DOM.
-
-### Step VII: Function Components
-- [ ] Add support for functional components.
-- [ ] Pass `props` to components for dynamic rendering.
-
-### Step VIII: Hooks
-- [ ] Implement `useState` for local state management.
-- [ ] Add `useEffect` for side effects.
-- [ ] Build a registry to track hooks.
-
----
-
 ## Project Tasks
 
 ### Examples
@@ -74,14 +33,5 @@ RifleJS is inspired by modern frontend frameworks but keeps things lightweight a
 - [ ] Create a to-do list app with state management.
 
 ### Documentation
-- [ ] Write detailed examples in the README.
-- [ ] Add comments to the codebase for clarity.
-
-### Testing
-- [ ] Set up a testing framework (e.g., Jest).
-- [ ] Write unit tests for each module.
-- [ ] Add integration tests for full workflows.
-
-### Optimization
-- [ ] Profile rendering performance.
-- [ ] Optimize reconciliation for large trees.
+- [X] Write detailed examples in the README.
+- [X] Add comments to the codebase for clarity.

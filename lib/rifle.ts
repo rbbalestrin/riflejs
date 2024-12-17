@@ -1,4 +1,16 @@
-function createElement(type, props, ...children) {
+import { Fiber, RifleElement } from './interfaces';
+
+function createTextElement(text: string): RifleElement {
+  return {
+    type: 'TEXT_ELEMENT',
+    props: {
+      nodeValue: text,
+      children: [],
+    },
+  };
+}
+
+function createElement(type: string, props: Record<string, any> | null, ...children: (RifleElement | string)[]): RifleElement {
   return {
     type,
     props: {
@@ -8,146 +20,183 @@ function createElement(type, props, ...children) {
   };
 }
 
-function createDom(fiber) {
-  const dom = fiber.type === 'TEXT_ELEMENT' ? document.createTextNode('') : document.createElement(element.type);
+/**********************
+ * DOM MANIPULATION   *
+ **********************/
 
-  const isProperty = (key) => key !== 'children';
+function createDom(fiber: Fiber): Node {
+  // For text fibers, create a text node
+  if (fiber.type === 'TEXT_ELEMENT') {
+    return document.createTextNode(fiber.props.nodeValue ?? '');
+  }
+
+  // Otherwise, create a DOM element
+  const dom = document.createElement(fiber.type);
+
+  // Assign properties (excluding "children")
+  const isProperty = (key: string) => key !== 'children';
   Object.keys(fiber.props)
     .filter(isProperty)
     .forEach((name) => {
       dom[name] = fiber.props[name];
     });
 
-  element.props.children.forEach((child) => {
-    render(child, dom);
+  // Render children of this fiber into the DOM node
+  fiber.props.children.forEach((child) => {
+    render(child, dom as HTMLElement);
   });
 
   return dom;
 }
 
-const isEvent = (key) => key.startsWith('on');
-const isProperty = (key) => key !== 'children' && !isEvent(key);
-const isNew = (prev, next) => (key) => prev[key] !== next[key];
-const isGone = (prev, next) => (key) => !(key in next);
+const isEvent = (key: string) => key.startsWith('on');
+const isProperty = (key: string) => key !== 'children' && !isEvent(key);
+const isNew = (prev: Record<string, any>, next: Record<string, any>) => (key: string) => prev[key] !== next[key];
+const isGone = (prev: Record<string, any>, next: Record<string, any>) => (key: string) => !(key in next);
 
-function updateDom(dom, prevProps, nextProps) {
-  //Remove old or changed event listeners
-  Object.keys(nextProps)
+function updateDom(dom: Node, prevProps: Record<string, any>, nextProps: Record<string, any>) {
+  // Remove old or changed event listeners
+  Object.keys(prevProps)
+    .filter(isEvent)
     .filter((key) => !(key in nextProps) || isNew(prevProps, nextProps)(key))
     .forEach((name) => {
       const eventType = name.toLowerCase().substring(2);
-      dom.removeEventListener(eventType, prevProps[name]);
+      (dom as HTMLElement).removeEventListener(eventType, prevProps[name]);
     });
 
-  //Remove old properties
+  // Remove old properties
   Object.keys(prevProps)
     .filter(isProperty)
     .filter(isGone(prevProps, nextProps))
     .forEach((name) => {
-      dom[name] = '';
+      (dom as any)[name] = '';
     });
 
-  //Add event listeners
+  // Set new or changed properties
+  Object.keys(nextProps)
+    .filter(isProperty)
+    .filter(isNew(prevProps, nextProps))
+    .forEach((name) => {
+      (dom as any)[name] = nextProps[name];
+    });
+
+  // Add event listeners
   Object.keys(nextProps)
     .filter(isEvent)
     .filter(isNew(prevProps, nextProps))
     .forEach((name) => {
       const eventType = name.toLowerCase().substring(2);
-      dom.addEventListener(eventType, nextProps[name]);
+      (dom as HTMLElement).addEventListener(eventType, nextProps[name]);
     });
 }
 
-let nextUnitOfWork = null;
-let currentRoot = null;
-let wipRoot = null;
-let deletions = null;
+/**********************
+ * FIBER RECONCILIATION
+ **********************/
 
-function commitRoot() {
+let nextUnitOfWork: Fiber | null = null;
+let currentRoot: Fiber | null = null;
+let wipRoot: Fiber | null = null;
+let deletions: Fiber[] = [];
+
+/** Commit the "root" once the entire Fiber tree is built */
+function commitRoot(): void {
   deletions.forEach(commitWork);
-  commitWork(wipRoot.child);
+  commitWork(wipRoot?.child || null);
   currentRoot = wipRoot;
   wipRoot = null;
 }
 
-function commitWork(fiber) {
-  if (!fiber) {
-    return;
-  }
+function commitWork(fiber: Fiber | null): void {
+  if (!fiber) return;
 
-  const domParent = fiber.parent.dom;
-  if (fiber.effectTag === 'PLACEMENT' && fiber.dom != null) {
+  const domParent = fiber.parent?.dom;
+  if (!domParent) return;
+
+  if (fiber.effectTag === 'PLACEMENT' && fiber.dom) {
     domParent.appendChild(fiber.dom);
-  } else if (fiber.effectTag === 'DELETION') {
+  } else if (fiber.effectTag === 'DELETION' && fiber.dom) {
     domParent.removeChild(fiber.dom);
-  } else if (fiber.effectTag === 'UPDATE' && fiber.dom != null) {
+  } else if (fiber.effectTag === 'UPDATE' && fiber.dom && fiber.alternate) {
     updateDom(fiber.dom, fiber.alternate.props, fiber.props);
   }
+
+  commitWork(fiber.child);
+  commitWork(fiber.sibling);
 }
 
-function render(element, container) {
+export function render(element: RifleElement, container: HTMLElement | null): void {
+  if (!container) return;
+
   wipRoot = {
-    dom: container,
+    type: container.tagName.toLowerCase(), // or some placeholder
     props: {
       children: [element],
     },
+    dom: container,
     alternate: currentRoot,
   };
 
   deletions = [];
   nextUnitOfWork = wipRoot;
 }
-function workLoop(deadline) {
+
+/** The main work loop - uses requestIdleCallback for scheduling */
+function workLoop(deadline: IdleDeadline): void {
   let shouldYield = false;
+
   while (nextUnitOfWork && !shouldYield) {
     nextUnitOfWork = performUnitOfWork(nextUnitOfWork);
     shouldYield = deadline.timeRemaining() < 1;
   }
-  shouldYield ? requestIdleCallback(workLoop) : console.log('Done');
-}
 
-if (!nextUnitOfWork && wipRoot) {
-  commitRoot();
+  if (!nextUnitOfWork && wipRoot) {
+    commitRoot();
+  }
+
+  requestIdleCallback(workLoop);
 }
 
 requestIdleCallback(workLoop);
 
-function performUnitOfWork(fiber) {
+function performUnitOfWork(fiber: Fiber): Fiber | null {
+  // Create DOM for this fiber if not yet created
   if (!fiber.dom) {
     fiber.dom = createDom(fiber);
   }
 
+  // Reconcile children
   const elements = fiber.props.children;
   reconcileChildren(fiber, elements);
 
+  // Return next unit of work (child -> sibling -> parent's sibling, etc.)
   if (fiber.child) {
     return fiber.child;
   }
-  let nextFiber = fiber;
-
-  if (fiber.child) {
-    return fiber.child;
-  }
+  let nextFiber: Fiber | null = fiber;
 
   while (nextFiber) {
     if (nextFiber.sibling) {
       return nextFiber.sibling;
     }
-    nextFiber = nextFiber.parent;
+    nextFiber = nextFiber.parent || null;
   }
+  return null;
 }
 
-function reconcileChildren(wipFiber, elements) {
+function reconcileChildren(wipFiber: Fiber, elements: RifleElement[]) {
   let index = 0;
   let oldFiber = wipFiber.alternate && wipFiber.alternate.child;
-  let prevSibling = null;
+  let prevSibling: Fiber | null = null;
 
   while (index < elements.length || oldFiber != null) {
     const element = elements[index];
-    let newFiber = null;
+    let newFiber: Fiber | null = null;
 
-    const sameType = oldFiber && element && element.type == oldFiber.type;
+    const sameType = oldFiber && element && element.type === oldFiber.type;
 
-    if (sameType) {
+    // If same type -> update
+    if (sameType && oldFiber) {
       newFiber = {
         type: oldFiber.type,
         props: element.props,
@@ -157,6 +206,8 @@ function reconcileChildren(wipFiber, elements) {
         effectTag: 'UPDATE',
       };
     }
+
+    // If a new element of a different type -> placement
     if (element && !sameType) {
       newFiber = {
         type: element.type,
@@ -168,17 +219,19 @@ function reconcileChildren(wipFiber, elements) {
       };
     }
 
+    // If oldFiber exists but the type does not match -> deletion
     if (oldFiber && !sameType) {
       oldFiber.effectTag = 'DELETION';
       deletions.push(oldFiber);
     }
+
     if (oldFiber) {
       oldFiber = oldFiber.sibling;
     }
 
     if (index === 0) {
-      wipFiber.child = newFiber;
-    } else if (element) {
+      wipFiber.child = newFiber || null;
+    } else if (prevSibling && newFiber) {
       prevSibling.sibling = newFiber;
     }
 
@@ -187,15 +240,9 @@ function reconcileChildren(wipFiber, elements) {
   }
 }
 
-function createTextElement(text: string) {
-  return {
-    type: 'TEXT_ELEMENT',
-    props: {
-      nodeValue: text,
-      children: [],
-    },
-  };
-}
+/**********************
+ * EXAMPLE USAGE BELOW
+ **********************/
 
 const Rifle = {
   createElement,
@@ -203,5 +250,6 @@ const Rifle = {
 };
 
 const element = Rifle.createElement('div', { id: 'foo' }, 'Hello ', Rifle.createElement('b', null, 'world'), '!');
+
 const container = document.getElementById('root');
-Rifle.render(element, container);
+Rifle.render(element, container as HTMLElement);
