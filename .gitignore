@@ -69,7 +69,7 @@ typings/
 firebase.json
 .firebaserc
 /.firebase/
-/example/flamethrower.js
+/example/rifle.js
 
 # vercel build output api
 # https://vercel.com/docs/build-output-api/v3

@@ -13,7 +13,7 @@ export interface RouteChangeData {
   scrollId?: string;
 }
 
-export type RifleWindow = Window & typeof globalThis & { rifle: Router };
+export type RifleWindow = Window & typeof globalThis & { rifle: Router; rifleOptions: RifleOptions };
 
 export type FetchProgressEvent = {
   progress: number;
